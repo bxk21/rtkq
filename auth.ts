@@ -22,9 +22,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
 				const { userName, password } = signInSchema.parse(credentials)
 				// const pwHash = saltAndHashPassword(credentials.password)
-				// const pwHash = 
  
 				// logic to verify if the user exists
+				
 				// user = await getUserFromDb(credentials.email, pwHash)
  
 				if (!user) {
