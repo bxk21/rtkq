@@ -1,5 +1,5 @@
-import { checkUserLogin } from "@/lib/backend/auth/sheets";
-import { LoginInfo } from "@/lib/def/user";
+import { loginUser } from "@/lib/backend/auth/sheets";
+import { LoginInfo } from "@/lib/types/userTypes";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, context: Context) {
 	const body: LoginInfo = await request.json();
 	const { userName, password } = body;
 
-	const userId = await checkUserLogin(userName, password);
+	const userId = await loginUser(userName, password);
 
 	if (!userId) {
 		return NextResponse.json(null, { status: 401, statusText: 'Incorrect Username and/or Password' })

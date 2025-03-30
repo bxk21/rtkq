@@ -1,9 +1,13 @@
-import { LoginInfo, UserId, UserInfo } from "@/lib/def/user";
+import { LoginInfo, UserId, UserInfo, UserSession } from "@/lib/types/userTypes";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define a service using a base URL and expected endpoints
 export const localApiSlice = createApi({
-	baseQuery: fetchBaseQuery({ baseUrl: "/api/auth" }),
+	baseQuery: fetchBaseQuery({ baseUrl: "/api/auth",
+		prepareHeaders: (headers, api) => {
+			api.getState
+		}
+	}),
 	reducerPath: "local",
 	// Tag types are used for caching and invalidation.
 	tagTypes: ["Touches", "UserInfo"],
@@ -54,7 +58,7 @@ export const localApiSlice = createApi({
 			transformResponse: (response: { data: UserInfo }, meta, arg) => response?.data,
 		}),
 
-		login: build.mutation<UserId, LoginInfo> ({
+		login: build.mutation<UserSession, LoginInfo> ({
 			query: (loginInfo) => ({
 				url: '/login',
 				method: 'POST',

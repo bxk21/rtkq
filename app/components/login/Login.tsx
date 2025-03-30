@@ -5,7 +5,7 @@ import { useGetUserInfoQuery, useLoginMutation } from "@/lib/frontend/slices/loc
 import { signIn } from "@/auth";
 
 export const Login = () => {
-	const [ login, { data: userId } ] = useLoginMutation();
+	const [ login, { data: userSession } ] = useLoginMutation();
 	const {
 		isUninitialized,
 		isError,
@@ -13,7 +13,7 @@ export const Login = () => {
 		isSuccess,
 		error,
 		data: userInfo
-	} = useGetUserInfoQuery(userId ?? skipToken);
+	} = useGetUserInfoQuery(userSession?.userId ?? skipToken);
 
 	const submitLogin = async (formData: FormData) => {
 		// signIn('credentials', formData);
