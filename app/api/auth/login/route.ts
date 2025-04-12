@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest, context: Context) {
 		} else {
 			return NextResponse.json(null, error);
 		}
-	}, userName).catch((_error) => {
+	}, 'New User: ' + userName).catch((_error) => {
 		console.log('caught error', _error);
 		return NextResponse.json(null, {status: HttpStatusCode.InternalServerError});
 	});
@@ -44,20 +44,24 @@ export async function PUT(request: NextRequest, context: Context) {
  */
 export async function POST(request: NextRequest, context: Context) {
 	const { userName, password }: LoginInfo = await request.json();
+	return await withLock(async () => {
+		const userSession = await new Sheet().loginUser(userName, password);
 
-	const userSession = await new Sheet().loginUser(userName, password);
-
-	if (!userSession) {
-		return NextResponse.json(null, { status: 401, statusText: 'Incorrect Username and/or Password' })
-	} else {
-		return NextResponse.json(
-			userSession.userId,
-			{
-				headers: {
-					token: userSession.token,
-					tokenCreated: userSession.tokenCreated.toString()
+		if (!userSession) {
+			return NextResponse.json(null, { status: 401, statusText: 'Incorrect Username and/or Password' })
+		} else {
+			return NextResponse.json(
+				userSession.userId,
+				{
+					headers: {
+						token: userSession.token,
+						tokenCreated: userSession.tokenCreated.toString()
+					}
 				}
-			}
-		);
-	}
+			);
+		}
+	}, 'Log In: ' + userName).catch((_error) => {
+		console.log('caught error', _error);
+		return NextResponse.json(null, {status: HttpStatusCode.InternalServerError});
+	});
 }

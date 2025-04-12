@@ -43,7 +43,7 @@ export async function withLock<T>(callback: () => Promise<T>, id: string): Promi
 	return acquire().then(async (allow) => {
 		if (!allow) {
 			console.log('QUEUE TOO LONG', id, queue);
-			return NextResponse.json(null, {status: HttpStatusCode.ServiceUnavailable});
+			return NextResponse.json(null, {statusText: 'Server is busy. Please try again in a few seconds.', status: HttpStatusCode.ServiceUnavailable});
 		}
 		try {
 			console.log('MY TURN', id);

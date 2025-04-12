@@ -1,13 +1,10 @@
-import { UserSession, USER_DATA, UserInfo, UserColumns, UserToken, UserId, TOKEN_DATA, UserIdentifiers, METADATA_DATA, MetadataKey, METADATA_COLUMNS, Metadata, METEDATA_INDEX_A1 } from "@/lib/types/userTypes";
+import { UserSession, USER_DATA, UserInfo, UserColumns, UserToken, UserId, TOKEN_DATA, UserIdentifiers, METADATA_DATA, MetadataKey, Metadata, METEDATA_INDEX_A1, METADATA_SHEET, TOKEN_SHEET, USER_SHEET } from "@/lib/types/userTypes";
 import { GoogleAuth } from "google-auth-library";
 import { GoogleSpreadsheet, GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { checkPasswordAgainstSaltAndHash, generateSaltAndHash, generateToken, isExpired } from "./crypto";
 import { FlatTwoDimentionalArray, RequireOneExactly } from "@/lib/types/utilTypes";
 import { HttpStatusCode } from "axios";
 
-const USER_SHEET = 'users';
-const TOKEN_SHEET = 'tokens';
-const METADATA_SHEET = 'metadata';
 // const LOCK_SHEET = 'lock';
 
 export class Sheet {
@@ -86,11 +83,12 @@ export class Sheet {
 
 		await sheet.loadCells(addresses);
 		const userProps = (await sheet.getCellsInRange(addresses, { majorDimension: "COLUMNS" }) as FlatTwoDimentionalArray<string> ?? [])[0];
-
+		console.log('userprops', userProps);
 		const givenProp = searchProp.userId ?? searchProp.userName;
-		const userIndex = userProps?.findIndex((checkProp: string | number) => checkProp === givenProp);
+		const userIndex = userProps?.findIndex((checkProp: string) => checkProp === givenProp);
+		console.log('userIndex', userIndex)
 
-		if (!userIndex || userIndex === -1) { return null; } // User not Found
+		if (userIndex === -1) { return null; } // User not Found
 
 		return (await sheet.getRows({ offset: userIndex, limit: 1 }))[0];
 	}
@@ -112,7 +110,7 @@ export class Sheet {
 			]);
 		}
 
-		this.tokenWorksheet = sheet;
+		this.metadataWorksheet = sheet;
 
 		return sheet;
 	}
@@ -143,51 +141,15 @@ export class Sheet {
 		await dataRow.save();
 	}
 
-	// ======== Lock ========
-
-	// /** Gets (or creates if not existing) the lock sheet in a given document. */
-	// private async getLockSheet(): Promise<GoogleSpreadsheetWorksheet> {
-	// 	if (this.metadataWorksheet) { return this.metadataWorksheet; }
-
-	// 	const [sheet, _old] = await this.getSheet(LOCK_SHEET);
-
-	// 	this.tokenWorksheet = sheet;
-
-	// 	return sheet;
-	// }
-
-	// /** Gets a piece of metadata by the key and its address in a tuple. */
-	// private async queueLock(key: string): Promise<GoogleSpreadsheetRow> {
-	// 	const lockWorksheet = await this.getLockSheet();
-	// 	await lockWorksheet.loadCells(METEDATA_INDEX_A1);
-	// 	const metadataSizeCell = lockWorksheet.getCellByA1(METEDATA_INDEX_A1);
-	// 	if (!metadataSizeCell.numberValue) {
-	// 		// metadataSizeCell.numberValue = METADATA_COLUMNS.length;
-	// 		// metadataSizeCell.save();
-	// 		throw new Error('lastMetadataIndex not found');
-	// 	}
-	// 	const rows: GoogleSpreadsheetRow<Metadata>[] = await lockWorksheet.getRows({ limit: metadataSizeCell.numberValue + 1 });
-	// 	let dataRow = rows.find((row) => row.get("key") === key);
-	// 	if (!dataRow) {
-	// 		dataRow = await lockWorksheet.addRow({ key, value: '' });
-	// 		metadataSizeCell.numberValue += 1;
-	// 		await metadataSizeCell.save();
-	// 	}
-	// 	return dataRow;
-	// }
-
-	// private async doLock(func: Function): Promise<void> {
-	// 	await 
-	// }
-
 	// ======== Auth ========
 
 	/** Does password checking for the given account. If valid, returns the Row for processing. */
-	private async verifyUserAccount(userName: string, password: string): Promise<GoogleSpreadsheetRow | null> {
+	private async verifyUserAccount(userName: string, password: string): Promise<GoogleSpreadsheetRow<UserColumns> | null> {
+		console.log('getting user', userName);
 		const userRow = await this.getUserRow({ userName });
 		if (!userRow) { return null; } // No User
 
-		console.log('logging in', userName);
+		console.log('Logging in:', userName, userRow.toObject());
 
 		if (!await checkPasswordAgainstSaltAndHash(password, userRow.get('salt'), userRow.get('hash'))) {
 			return null; // Wrong Password
@@ -265,7 +227,10 @@ export class Sheet {
 	private async assignToken(userId: UserId): Promise<UserToken> {
 		const userToken = generateToken();
 
+		console.log('GENERATING TOKEN');
+
 		const out = await this.getTokenRow(userId);
+		console.log('DONE GENERATING TOKEN', out?.[0]);
 		if (out) { // Update Existing Token
 			const [tokenRow, cleanup] = out;
 			tokenRow.assign({
@@ -276,10 +241,11 @@ export class Sheet {
 			await cleanup();
 		} else { // Create New Token
 			const tokenSheet = await this.getTokenSheet();
-			await tokenSheet.addRow({
+			const tokenRow = await tokenSheet.addRow({
 				userId,
 				...userToken
 			});
+			console.log('token:', tokenRow.toObject());
 		}
 		return userToken;
 	}
@@ -346,7 +312,7 @@ export class Sheet {
 		const userRow = await this.verifyUserAccount(userName, password);
 		if (!userRow) { return false; } // Failed Login
 
-		userRow.set('hash', null);
+		userRow.set('hash', '');
 		await userRow.save();
 
 		return true;
@@ -361,13 +327,13 @@ export class Sheet {
 		if (!userRow) { return false; } // Failed Login
 
 		userRow.assign({
-			userName: null,
-			hash: null,
-			salt: null,
-			token: null,
-			tokenCreated: null,
-			touches: null,
-			data: null
+			userName: undefined,
+			hash: undefined,
+			salt: undefined,
+			token: undefined,
+			tokenCreated: undefined,
+			touches: undefined,
+			data: undefined
 		});
 		await userRow.save();
 
@@ -381,6 +347,8 @@ export class Sheet {
 	public async loginUser(userName: string, password: string): Promise<UserSession | null> {
 		const userRow = await this.verifyUserAccount(userName, password);
 		if (!userRow) { return null; } // Failed Login
+
+		console.log('logged in', userRow.toObject());
 
 		const userId = userRow.get('userId');
 
