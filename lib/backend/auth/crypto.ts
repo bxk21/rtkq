@@ -22,6 +22,7 @@ export function generateSaltAndHash(password: string) {
 }
 
 export function checkPasswordAgainstSaltAndHash(password: string, salt: string, hash: string): boolean {
+	console.log('salt', salt, hash);
 	return hash === pbkdf2Sync(password, salt, ITERATIONS, SIZE, DIGEST).toString(ENCODING);
 }
 

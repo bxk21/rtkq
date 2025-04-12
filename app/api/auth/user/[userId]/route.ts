@@ -1,4 +1,4 @@
-import { getUserData } from "@/lib/backend/auth/sheets";
+import { Sheet } from "@/lib/backend/auth/sheets";
 import { UserInfo } from "@/lib/types/userTypes";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -18,7 +18,7 @@ interface Context {
 export async function GET(request: NextRequest, context: Context) {
 	const { userId } = await context.params;
 	// TODO: Actually get from data
-	const data = await getUserData(userId);
+	const data = await new Sheet().getUserData(userId);
 	if (data) {
 		return NextResponse.json({ data });
 	} else {

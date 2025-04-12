@@ -1,5 +1,7 @@
-import { loginUser } from "@/lib/backend/auth/sheets";
+import { Sheet } from "@/lib/backend/auth/sheets";
+import { withLock } from "@/lib/backend/util/lock";
 import { LoginInfo } from "@/lib/types/userTypes";
+import { HttpStatusCode } from "axios";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -7,9 +9,28 @@ interface Context {
 	params: undefined;
 }
 
+// export async function PUT(request: NextRequest, context: Context) {
+// 	const body: { username: string, password: string } = await request.json();
+// 	const ip = request.headers.get('X-Forwarded-For'); // get IP address
+// }
+
+/**
+ * Creates a User Account
+ */
 export async function PUT(request: NextRequest, context: Context) {
-	const body: { username: string, password: string } = await request.json();
-	request.headers.get('X-Forwarded-For');
+	const { userName, password }: LoginInfo = await request.json();
+	return await withLock(async () => {
+		const error = await new Sheet().createUserAccount(userName, password);
+
+		if (!error) {
+			return NextResponse.json({confirmed: true});
+		} else {
+			return NextResponse.json(null, error);
+		}
+	}, userName).catch((_error) => {
+		console.log('caught error', _error);
+		return NextResponse.json(null, {status: HttpStatusCode.InternalServerError});
+	});
 }
 
 /**
@@ -22,15 +43,21 @@ export async function PUT(request: NextRequest, context: Context) {
  * Return a JWT Token
  */
 export async function POST(request: NextRequest, context: Context) {
-	const body: LoginInfo = await request.json();
-	const { userName, password } = body;
+	const { userName, password }: LoginInfo = await request.json();
 
-	const userId = await loginUser(userName, password);
+	const userSession = await new Sheet().loginUser(userName, password);
 
-	if (!userId) {
+	if (!userSession) {
 		return NextResponse.json(null, { status: 401, statusText: 'Incorrect Username and/or Password' })
-		// return new Response(null, {status: 401, statusText: 'Incorrect Username and/or Password'});
 	} else {
-		return NextResponse.json(userId);
+		return NextResponse.json(
+			userSession.userId,
+			{
+				headers: {
+					token: userSession.token,
+					tokenCreated: userSession.tokenCreated.toString()
+				}
+			}
+		);
 	}
 }

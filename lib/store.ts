@@ -2,11 +2,12 @@ import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import { counterSlice } from "./frontend/slices/counter/counterSlice";
 import { quotesApiSlice } from "./frontend/slices/quotes/quotesApiSlice";
-import { localApiSlice } from "./frontend/slices/local/localApiSlice";
+import { sheetsApiSlice } from "./frontend/slices/sheets/sheetsApiSlice";
+import { tokenSlice } from "./frontend/slices/sheets/tokenSlice";
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-const rootReducer = combineSlices(counterSlice, quotesApiSlice, localApiSlice);
+const rootReducer = combineSlices(counterSlice, quotesApiSlice, sheetsApiSlice, tokenSlice);
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>;
 
@@ -22,7 +23,7 @@ export const makeStore = () => {
 		middleware: (getDefaultMiddleware) => {
 			return getDefaultMiddleware()
 				.concat(quotesApiSlice.middleware)
-				.concat(localApiSlice.middleware);
+				.concat(sheetsApiSlice.middleware);
 		},
 	});
 };

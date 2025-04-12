@@ -1,23 +1,38 @@
 "use client";
 import { skipToken } from "@reduxjs/toolkit/query";
 import styles from "./Login.module.css";
-import { useGetUserInfoQuery, useLoginMutation } from "@/lib/frontend/slices/local/localApiSlice";
-import { signIn } from "@/auth";
+import { useGetUserInfoQuery, useLoginMutation, useNewUserMutation } from "@/lib/frontend/slices/sheets/sheetsApiSlice";
+// import { signIn } from "@/auth";
 
 export const Login = () => {
-	const [ login, { data: userSession } ] = useLoginMutation();
+	const [ login, { isError: loginIsError, error: loginError, data: userSession, reset: resetLogin } ] = useLoginMutation();
+	const [ newUser, { isError: newUserIsError, error: newUserError, reset: resetNewUser } ] = useNewUserMutation();
 	const {
 		isUninitialized,
-		isError,
+		isError: getUserIsError,
 		isLoading,
 		isSuccess,
-		error,
+		error: getUserError,
 		data: userInfo
 	} = useGetUserInfoQuery(userSession?.userId ?? skipToken);
 
+	const isError = loginIsError || newUserIsError || getUserIsError;
+	const error =
+		(loginIsError ? JSON.stringify(loginError) : '') +
+		(newUserIsError ? JSON.stringify(newUserError) : '') +
+		(getUserIsError ? JSON.stringify(getUserError) : '');
+
 	const submitLogin = async (formData: FormData) => {
-		// signIn('credentials', formData);
+		resetNewUser(); // Remove errors from New User
 		login({
+			userName: formData.get('userName') as string, // TODO: handle this better than coersion
+			password: formData.get('password') as string
+		})
+	};
+
+	const submitNewUser = async (formData: FormData) => {
+		resetLogin(); // Remove errors from Login
+		newUser({
 			userName: formData.get('userName') as string, // TODO: handle this better than coersion
 			password: formData.get('password') as string
 		})
@@ -25,7 +40,7 @@ export const Login = () => {
 
 	return <div>
 		{isError && <div>
-			<h1>There was an error: {JSON.stringify(error)}</h1>
+			<h1>There was an error: {error}</h1>
 		</div>}
 
 		{isLoading && <div>
@@ -41,6 +56,18 @@ export const Login = () => {
 			</label>
 			<button type="submit">
 				Login
+			</button>
+		</form>}
+
+		{(isUninitialized || isError) && <form action={submitNewUser}>
+			<label>
+				Username: <input name="userName" type="string"/>
+			</label>
+			<label>
+				Password: <input name="password" type="password"/>
+			</label>
+			<button type="submit">
+				New User
 			</button>
 		</form>}
 

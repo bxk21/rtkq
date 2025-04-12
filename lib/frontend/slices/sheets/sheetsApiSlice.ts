@@ -1,12 +1,35 @@
+import { RootState, AppStore } from "@/lib/store";
 import { LoginInfo, UserId, UserInfo, UserSession } from "@/lib/types/userTypes";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define a service using a base URL and expected endpoints
-export const localApiSlice = createApi({
-	baseQuery: fetchBaseQuery({ baseUrl: "/api/auth",
+export const sheetsApiSlice = createApi({
+	baseQuery: fetchBaseQuery({
+		baseUrl: "/api/auth",
+		// Add Token to every header
 		prepareHeaders: (headers, api) => {
-			api.getState
-		}
+			const state = api.getState() as RootState;
+			console.log('state', state);
+
+			const token = state.token.token;
+			if (token) {
+				headers.set('token', token);
+			}
+			return headers;
+		},
+		// responseHandler: async (response) => {
+		// 	const token = response.headers.get('token');
+		// 	// null will turn into 0, which will then turn back into null;
+		// 	const tokenCreated = parseInt(response.headers.get('tokenCreated') ?? '0') || null;
+
+		// 	// Update Token
+		// 	setToken({
+		// 		token,
+		// 		tokenCreated
+		// 	});
+
+		// 	return response;
+		// },
 	}),
 	reducerPath: "local",
 	// Tag types are used for caching and invalidation.
@@ -67,10 +90,26 @@ export const localApiSlice = createApi({
 			invalidatesTags: ['Touches', 'UserInfo'],
 			// transformResponse: (response: { data: UserId }) => response.data
 		}),
+
+		newUser: build.mutation<UserSession, LoginInfo> ({
+			query: (loginInfo) => ({
+				url: '/login',
+				method: 'PUT',
+				body: loginInfo
+			}),
+			invalidatesTags: ['Touches', 'UserInfo'],
+			// transformResponse: (response: { data: UserId }) => response.data
+		}),
 	}),
 });
 
-export const { useLoginMutation, useGetUserInfoQuery, useTouchMutation, useGetTouchesQuery } = localApiSlice;
+export const { useLoginMutation, useGetUserInfoQuery, useTouchMutation, useGetTouchesQuery, useNewUserMutation,
+	endpoints: {
+		login: {
+			matchFulfilled: loginMatchFulfilled
+		}
+	}
+} = sheetsApiSlice;
 
 		// https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates
 		// // onQueryStarted is useful for optimistic updates
