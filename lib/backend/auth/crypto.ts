@@ -1,4 +1,4 @@
-import { UserToken } from '@/lib/types/userTypes';
+import { UserAuth, UserToken } from '@/lib/types/userTypes';
 import { randomBytes, pbkdf2Sync } from 'node:crypto';
 
 const SIZE = 16;
@@ -11,7 +11,7 @@ export function random(size?: number): string {
 	return randomBytes(size ?? SIZE).toString(ENCODING);
 }
 
-export function generateSaltAndHash(password: string) {
+export function generateSaltAndHash(password: string): UserAuth {
 	const salt = random();
 	const hash = pbkdf2Sync(password, salt, ITERATIONS, SIZE, DIGEST).toString(ENCODING);
 
