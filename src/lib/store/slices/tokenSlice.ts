@@ -30,6 +30,7 @@ export const tokenSlice = createSlice({
 		builder.addMatcher(
 			loginMatchFulfilled,
 			(state, { payload }) => {
+				console.log('WRITING TO TOKEN STATE:', payload);
 				state.userId = payload.userId;
 				state.token = payload.token;
 				state.tokenCreated = payload.tokenCreated;

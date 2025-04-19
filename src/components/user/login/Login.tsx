@@ -1,22 +1,13 @@
 "use client";
-import { skipToken } from "@reduxjs/toolkit/query";
 import styles from "./Login.module.css";
-import { useGetUserInfoQuery, useLoginMutation, useNewUserMutation } from "@/src/lib/store/slices/sheetsApiSlice";
+import { useLoginMutation } from "@/src/lib/store/slices/sheetsApiSlice";
 import { UserInfo } from "../userInfo/UserInfo";
 // import { signIn } from "@/auth";
 
 export const Login = () => {
 	const [ login, { isError, error, data, reset, isLoading, isUninitialized, isSuccess } ] = useLoginMutation();
-	// const [ newUser, { isError: newUserIsError, error: newUserError, reset: resetNewUser } ] = useNewUserMutation();
-
-	// const isError = loginIsError || newUserIsError;
-	// const error =
-	// 	(loginIsError ? JSON.stringify(loginError) : '') +
-	// 	(newUserIsError ? JSON.stringify(newUserError) : '');
-	// 	// (getUserIsError ? JSON.stringify(getUserError) : '');
 
 	const submitLogin = async (formData: FormData) => {
-		// resetNewUser(); // Remove errors from New User
 		login({
 			userName: formData.get('userName') as string, // TODO: handle this better than coersion
 			password: formData.get('password') as string
@@ -44,9 +35,9 @@ export const Login = () => {
 			</button>
 		</form>}
 
+		{/* This isn't really shown */}
 		{isSuccess && <div className={styles.container}>
 			Logged In!
-			<UserInfo/>
 		</div>}
 	</div>
 };

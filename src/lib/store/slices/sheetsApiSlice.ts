@@ -18,6 +18,7 @@ export const sheetsApiSlice = createApi({
 			}
 			return headers;
 		},
+		// This may be properly done through the matchFulfilled
 		// Update Token from every response
 		// responseHandler: async (response) => {
 		// 	const token = response.headers.get('token');

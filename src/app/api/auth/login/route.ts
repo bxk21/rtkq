@@ -51,7 +51,11 @@ export async function POST(request: NextRequest, context: Context) {
 			return NextResponse.json(null, { status: 401, statusText: 'Incorrect Username and/or Password' })
 		} else {
 			return NextResponse.json(
-				userSession.userId,
+				{
+					userId: userSession.userId,
+					token: userSession.token,
+					tokenCreated: userSession.tokenCreated.toString()
+				},
 				{
 					headers: {
 						token: userSession.token,
