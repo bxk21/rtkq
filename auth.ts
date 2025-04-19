@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { signInSchema } from "./lib/backend/validation/zod"
+import { signInSchema } from "./src/lib/backend/validation/zod"
 // TODO
 // Your own logic for dealing with plaintext password strings; be careful!
 // import { saltAndHashPassword } from "@/utils/password"
