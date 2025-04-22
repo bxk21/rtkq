@@ -50,7 +50,7 @@ async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promi
 // ======== Password ========
 
 /** Does password checking for the given account. If valid, returns the Row for processing. */
-async function verifyUserAccount(userName: string, password: string): Promise<GoogleSpreadsheetRow<UserColumns> | null> {
+async function verifyUserAccount(userName: string, password: string): Promise<GoogleSpreadsheetRow<Partial<UserColumns>> | null> {
 	console.log('getting user', userName);
 	const userRow = await getUserRow({ userName });
 	if (!userRow) { return null; } // No User
