@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import styles from "../styles/layout.module.css";
+import styles from "@/src/styles/layout.module.css";
 import { useSelector } from "react-redux";
-import { selectUserId } from "../../lib/store/slices/tokenSlice";
-import { useGetUserInfoQuery } from "../../lib/store/slices/sheetsApiSlice";
+import { selectUserId } from "@/src/lib/store/slices/tokenSlice";
+import { useGetUserInfoQuery } from "@/src/lib/store/slices/sheetsApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { AccountType, hasAccountType } from "@/src/lib/util/permissions";
+import { hasAccountType } from "@/src/lib/util/permissions";
 
 export const Nav = () => {
 	const userId = useSelector(selectUserId);
@@ -25,8 +25,14 @@ export const Nav = () => {
         Home
       </Link>
       <Link
-        className={`${styles.link} ${pathname === "/" ? styles.active : ""}`}
-        href="/" hidden={!hasAccountType(data?.accountTypes!, "admin")}
+        className={`${styles.link} ${pathname === "/settings" ? styles.active : ""}`}
+        href="/settings" hidden={!hasAccountType(data?.accountTypes!, "user")}
+      >
+        Settings
+      </Link>
+      <Link
+        className={`${styles.link} ${pathname === "/admin" ? styles.active : ""}`}
+        href="/admin" hidden={!hasAccountType(data?.accountTypes!, "admin")}
       >
         Admin
       </Link>
