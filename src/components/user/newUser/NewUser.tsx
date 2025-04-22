@@ -33,10 +33,8 @@ export const NewUser = () => {
 			</button>
 		</form>}
 
-		{/* {isSuccess && <div className={styles.container}>
-			{Object.entries(userInfo).map(([key, value], i) => <div key={i}>
-				{key} : {value}
-			</div>)}
-		</div>} */}
+		{isSuccess && <div className={styles.container}>
+			User Created!
+		</div>}
 	</div>
 };

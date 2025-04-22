@@ -1,4 +1,4 @@
-import { UserSession, USER_DATA, UserInfo, UserColumns, UserIdentifiers, USER_SHEET } from "@/src/lib/types/userTypes";
+import { UserSession, USER_COLUMNS, UserInfo, UserColumns, UserIdentifiers, USER_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { getSheet } from "./sheets";
 import { FlatTwoDimentionalArray, RequireOneExactly } from "../../types/utilTypes";
@@ -18,7 +18,7 @@ async function getUserSheet(): Promise<GoogleSpreadsheetWorksheet> {
 	const [sheet, old] = await getSheet(USER_SHEET);
 	if (!old) {
 		// Initialize Sheet data
-		sheet.setHeaderRow(USER_DATA);
+		sheet.setHeaderRow(USER_COLUMNS);
 	}
 
 	userWorksheet = sheet;
@@ -37,10 +37,8 @@ async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promi
 
 	await sheet.loadCells(addresses);
 	const userProps = (await sheet.getCellsInRange(addresses, { majorDimension: "COLUMNS" }) as FlatTwoDimentionalArray<string> ?? [])[0];
-	console.log('userprops', userProps);
 	const givenProp = searchProp.userId ?? searchProp.userName;
-	const userIndex = userProps?.findIndex((checkProp: string) => checkProp === givenProp);
-	console.log('userIndex', userIndex)
+	const userIndex = userProps?.findIndex((checkProp: string) => checkProp === givenProp.toString());
 
 	if (userIndex === -1) { return null; } // User not Found
 
@@ -51,15 +49,10 @@ async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promi
 
 /** Does password checking for the given account. If valid, returns the Row for processing. */
 async function verifyUserAccount(userName: string, password: string): Promise<GoogleSpreadsheetRow<Partial<UserColumns>> | null> {
-	console.log('getting user', userName);
 	const userRow = await getUserRow({ userName });
 	if (!userRow) { return null; } // No User
 
-	console.log('Logging in:', userName, userRow.toObject());
-
-	if (!await checkPasswordAgainstSaltAndHash(password, userRow.get('salt'), userRow.get('hash'))) {
-		return null; // Wrong Password
-	}
+	if (!await checkPasswordAgainstSaltAndHash(password, userRow.get('salt'), userRow.get('hash'))) { return null; } // Wrong Password
 
 	return userRow;
 }
@@ -164,25 +157,25 @@ export async function loginUser(userName: string, password: string): Promise<Use
 
 	const userId = userRow.get('userId');
 
-	return {
-		userId,
-		...(await assignToken(userId))!
-	};
+	return await assignToken(userId)!; // If checkExisting is false, assignToken always returns a UserSession
 }
 
 /**
  * Gets the user's data by userId
  */
-export async function getUserData(userId: number): Promise<UserInfo | null> {
+export async function getUserData(userId: number): Promise<Partial<UserInfo> | null> {
 	const userRow = await getUserRow({ userId });
 	if (!userRow) { return null; }
 
-	return {
-		userId,
-		userName: userRow.get('userName'),
-		touches: userRow.get('touches'),
-		data: userRow.get('data')
-	};
+	const {
+		hash,
+		salt,
+		token,
+		tokenCreated,
+		...data
+	} = userRow.toObject();
+
+	return data;
 }
 
 /**
@@ -196,4 +189,11 @@ export async function setUserData(userId: number, userData: Partial<UserColumns>
 	await userRow.save();
 
 	return true;
+}
+
+/**
+ * FIXME: isAdmin is a string
+ */
+export async function isAdmin(userId: number): Promise<boolean> {
+	return (await getUserData(userId))?.isAdmin as unknown as string === 'true';
 }

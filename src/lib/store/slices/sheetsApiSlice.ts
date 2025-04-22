@@ -1,7 +1,6 @@
 import { RootState } from "@/src/lib/store/store";
-import { LoginInfo, UserId, UserInfo, UserSession } from "@/src/lib/types/userTypes";
-import { createApi, fetchBaseQuery, FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
-import { selectUserId } from "./tokenSlice";
+import { LoginInfo, UserId, UserInfo } from "@/src/lib/types/userTypes";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define a service using a base URL and expected endpoints
 export const sheetsApiSlice = createApi({
@@ -10,7 +9,6 @@ export const sheetsApiSlice = createApi({
 		// Add Token to every header
 		prepareHeaders: (headers, api) => {
 			const state = api.getState() as RootState;
-			console.log('state', state);
 
 			const token = state.token.token;
 			if (token) {
@@ -75,7 +73,7 @@ export const sheetsApiSlice = createApi({
 			invalidatesTags: ['Touches'],
 		}),
 
-		getUserInfo: build.query<UserInfo, UserId>({
+		getUserInfo: build.query<Partial<UserInfo>, UserId>({
 			// queryFn: async (_args, api, _extraOptions, baseQuery) => {
 			// 	const state = api.getState() as RootState;
 			// 	console.log('state', state);
@@ -103,7 +101,7 @@ export const sheetsApiSlice = createApi({
 			// 	return [{ type: 'UserInfo', id: userId ?? -2 }];
 			// },
 			providesTags: ['UserInfo'],
-			transformResponse: (response: { data: UserInfo }, _meta: any, _arg: any) => response?.data,
+			// transformResponse: (response: { data: UserInfo }, _meta: any, _arg: any) => response?.data,
 		}),
 
 		login: build.mutation<boolean, LoginInfo> ({

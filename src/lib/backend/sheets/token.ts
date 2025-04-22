@@ -1,4 +1,4 @@
-import { UserSession, UserToken, UserId, TOKEN_DATA, TOKEN_SHEET } from "@/src/lib/types/userTypes";
+import { UserSession, UserId, TOKEN_COLUMNS, TOKEN_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { toInt } from "../../util/string";
 import { getSheet } from "./sheets";
@@ -7,8 +7,9 @@ import { setMetaData } from "./metadata";
 
 let tokenWorksheet: GoogleSpreadsheetWorksheet | undefined;
 
+// FIXME: The Token Page currently doesn't need to use `lastTokenIndex` at all. Remove?
 async function incrementMetadata(amount: number = 1) {
-	await setMetaData('lastTokenIndex', (dataRow) => Number.parseInt(dataRow.get('value')) + amount);
+	// await setMetaData('lastTokenIndex', (dataRow) => Number.parseInt(dataRow.get('value')) + amount);
 }
 
 /** Gets (or creates if not existing) the token sheet in a given document. */
@@ -18,7 +19,7 @@ async function getTokenSheet(): Promise<GoogleSpreadsheetWorksheet> {
 	const [sheet, old] = await getSheet(TOKEN_SHEET);
 	if (!old) {
 		// Initialize Sheet data
-		sheet.setHeaderRow(TOKEN_DATA);
+		sheet.setHeaderRow(TOKEN_COLUMNS);
 	}
 
 	tokenWorksheet = sheet;
@@ -34,8 +35,6 @@ async function getTokenSheet(): Promise<GoogleSpreadsheetWorksheet> {
 async function getTokenRow(userId: UserId): Promise<[GoogleSpreadsheetRow<Partial<UserSession>>, (() => Promise<void>) | null] | null> {
 	const tokenSheet = await getTokenSheet();
 	const tokenRows: GoogleSpreadsheetRow<Partial<UserSession>>[] = await tokenSheet.getRows();
-
-	console.log('get Token Row', tokenRows.map((row) => row.toObject()));
 
 	let found = false;
 	let deleteCount = 0;
@@ -84,12 +83,12 @@ async function cleanupTokens(tokenSheet: GoogleSpreadsheetWorksheet, lastIndex: 
 }
 
 /** Generates, saves, and returns an auth token for the given user(Row). */
-export async function assignToken(userId: UserId, checkExisting: boolean = false): Promise<UserToken | null> {
+export async function assignToken(userId: UserId, checkExisting: boolean = false): Promise<UserSession | null> {
 	const userToken = generateToken();
 
 
 	const out = await getTokenRow(userId);
-	console.log('GENERATING TOKEN:', out);
+	// console.log('GENERATING TOKEN:', out);
 	if (out) { // Update Existing Token
 		const [tokenRow, cleanup] = out;
 		tokenRow.assign({
@@ -98,7 +97,7 @@ export async function assignToken(userId: UserId, checkExisting: boolean = false
 		});
 		await tokenRow.save();
 		await cleanup?.();
-		console.log('Updated Token:', tokenRow.toObject());
+		// console.log('Updated Token:', tokenRow.toObject());
 	} else if (checkExisting) {
 		return null;
 	} else { // Create New Token
@@ -108,12 +107,16 @@ export async function assignToken(userId: UserId, checkExisting: boolean = false
 			...userToken
 		});
 		await incrementMetadata();
-		console.log('New Token:', tokenRow.toObject());
+		// console.log('New Token:', tokenRow.toObject());
 	}
-	return userToken;
+
+	return {
+		userId,
+		...userToken
+	};
 }
 
-export async function verifyToken(headers: Headers): Promise<UserToken | null> {
+export async function verifyToken(headers: Headers): Promise<UserSession | null> {
 	const userId = toInt(headers.get('userId'));
 	const token = headers.get('token');
 

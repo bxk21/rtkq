@@ -4,7 +4,6 @@ import { selectUserId } from "@/src/lib/store/slices/tokenSlice";
 import { useSelector } from "react-redux";
 import { NewUser } from "../newUser/NewUser";
 import { Login } from "../login/Login";
-import { UserInfo } from "../userInfo/UserInfo";
 
 export default function User() {
 	const userId = useSelector(selectUserId);

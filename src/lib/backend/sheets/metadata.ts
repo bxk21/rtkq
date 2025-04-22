@@ -27,19 +27,19 @@ async function getMetaDataSheet(): Promise<GoogleSpreadsheetWorksheet> {
 /** Gets a piece of metadata by the key and its address in a tuple. */
 export async function getMetaData(key: MetadataKey): Promise<GoogleSpreadsheetRow<Partial<Metadata>>> {
 	const metadataWorksheet = await getMetaDataSheet();
-	await metadataWorksheet.loadCells(METEDATA_INDEX_A1);
-	const metadataSizeCell = metadataWorksheet.getCellByA1(METEDATA_INDEX_A1);
-	if (!metadataSizeCell.numberValue) {
-		// metadataSizeCell.numberValue = METADATA_COLUMNS.length;
-		// metadataSizeCell.save();
-		throw new Error('lastMetadataIndex not found');
-	}
-	const rows: GoogleSpreadsheetRow<Partial<Metadata>>[] = await metadataWorksheet.getRows({ limit: metadataSizeCell.numberValue + 1 });
+	// await metadataWorksheet.loadCells(METEDATA_INDEX_A1);
+	// const metadataSizeCell = metadataWorksheet.getCellByA1(METEDATA_INDEX_A1);
+	// if (!metadataSizeCell.numberValue) {
+	// 	// metadataSizeCell.numberValue = METADATA_COLUMNS.length;
+	// 	// metadataSizeCell.save();
+	// 	throw new Error('lastMetadataIndex not found');
+	// }
+	const rows: GoogleSpreadsheetRow<Partial<Metadata>>[] = await metadataWorksheet.getRows(); // { limit: metadataSizeCell.numberValue + 1 }
 	let dataRow = rows.find((row) => row.get("key") === key);
 	if (!dataRow) {
-		dataRow = await metadataWorksheet.addRow({ key, value: '' });
-		metadataSizeCell.numberValue += 1;
-		await metadataSizeCell.save();
+		dataRow = await metadataWorksheet.addRow({ key, value: 0 });
+		// metadataSizeCell.numberValue += 1;
+		// await metadataSizeCell.save();
 	}
 	return dataRow;
 }

@@ -23,8 +23,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse<true | nul
 		} else {
 			return NextResponse.json(null, error);
 		}
-	}, 'New User: ' + userName).catch((_error) => {
-		console.log('caught error', _error);
+	}, 'New User: ' + userName).catch((error) => {
+		console.error('Server Error while Creating User Account: '+ error);
 		return NextResponse.json(null, {status: HttpStatusCode.InternalServerError});
 	});
 }
@@ -53,8 +53,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<true | nu
 				);
 			}
 		}, 'Log In: ' + userName
-	).catch((_error) => {
-		console.log('caught error', _error);
+	).catch((error) => {
+		console.error('Server Error while Logging In: '+ error);
 		return NextResponse.json(null, {status: HttpStatusCode.InternalServerError});
 	});
 }

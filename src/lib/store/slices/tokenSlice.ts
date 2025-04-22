@@ -15,7 +15,7 @@ const initialState: TokenState = {
 	tokenCreated: null,
 };
 
-export type Meta = BaseQueryMeta<BaseQueryFn<any, unknown, unknown, {}, { response: { headers: Headers } }>>;
+export type Meta = BaseQueryMeta<BaseQueryFn<any, unknown, unknown, {}, { response: Response }>>
 
 // If you are not using async thunks you can use the standalone `createSlice`.
 export const tokenSlice = createSlice({
@@ -33,8 +33,7 @@ export const tokenSlice = createSlice({
 		builder.addMatcher( // Get Token Data from all Headers
 			isAnyOf(...allFulfilledMatches),
 			(state, { meta: { baseQueryMeta } }) => {
-				const headers = (baseQueryMeta as Meta)!.response.headers
-				console.log('WRITING TO TOKEN STATE:', headers, Object.keys(headers));
+				const headers = (baseQueryMeta as Meta)!.response.headers;
 				state.userId = toInt(headers.get('userId'));
 				state.token = headers.get('token');
 				state.tokenCreated = toInt(headers.get('tokenCreated'));
