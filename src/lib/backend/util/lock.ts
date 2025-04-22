@@ -38,7 +38,7 @@ function release(): void {
  * Releases the lock or calls the next item in the queue,
  * Returns the callback value.
  */
-export async function withLock<T>(callback: () => Promise<T>, id: string): Promise<T | NextResponse> {
+export async function withLock<T>(callback: () => Promise<T>, id: string): Promise<T | NextResponse<null>> {
 	console.log('QUEUE', id);
 	return acquire().then(async (allow) => {
 		if (!allow) {

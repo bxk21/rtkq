@@ -17,13 +17,13 @@ interface Context {
 /**
  * Creates a User Account
  */
-export async function PUT(request: NextRequest, context: Context) {
+export async function PUT(request: NextRequest, context: Context): Promise<NextResponse<true | null>> {
 	const { userName, password }: LoginInfo = await request.json();
-	return await withLock(async () => {
+	return await withLock(async (): Promise<NextResponse<true | null>> => {
 		const error = await createUserAccount(userName, password);
 
 		if (!error) {
-			return NextResponse.json({confirmed: true});
+			return NextResponse.json(true);
 		} else {
 			return NextResponse.json(null, error);
 		}
@@ -36,10 +36,10 @@ export async function PUT(request: NextRequest, context: Context) {
 /**
  * Logs a user In
  */
-export async function POST(request: NextRequest, context: Context) {
+export async function POST(request: NextRequest, context: Context): Promise<NextResponse<true | null>> {
 	const { userName, password }: LoginInfo = await request.json();
 	return await withLock(
-		async () => {
+		async (): Promise<NextResponse<true | null>> => {
 			const userSession = await loginUser(userName, password);
 
 			if (!userSession) {

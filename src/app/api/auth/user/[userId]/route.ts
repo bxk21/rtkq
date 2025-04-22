@@ -45,9 +45,9 @@ export async function GET(request: NextRequest, context: Context): Promise<NextR
  * @param context 
  * @returns 
  */
-export async function PATCH(request: NextRequest, context: Context) {
+export async function PATCH(request: NextRequest, context: Context): Promise<NextResponse<true | null>> {
 	const body: Partial<UserInfo> = await request.json();
 	// const { amount = 1 } = body;
 
-	// return NextResponse.json({ data: amount });
+	return NextResponse.json(true);
 }

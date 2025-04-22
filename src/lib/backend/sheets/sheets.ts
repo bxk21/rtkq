@@ -11,18 +11,23 @@ let sheet: GoogleSpreadsheet | undefined;
 async function getGoogleSpreadsheet(): Promise<GoogleSpreadsheet> {
 	if (sheet) { return sheet; }
 
+	const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+	if (typeof spreadsheetId !== 'string') { throw new Error('No Sheet ID in Environment'); }
+	const private_key = process.env.GOOGLE_SHEET_PRIVATE_KEY;
+	if (typeof private_key !== 'string') { throw new Error('No Private Key in Environment'); }
+	const client_email = process.env.GOOGLE_SHEET_CLIENT_EMAIL;
+	if (typeof client_email !== 'string') { throw new Error('No Client Email in Environment'); }
+
 	const auth = new GoogleAuth({
+		credentials: {
+			private_key,
+			client_email,
+		},
 		scopes: [
 			'https://www.googleapis.com/auth/spreadsheets',
 			// 'https://www.googleapis.com/auth/drive.file' // To create/delete files
 		]
 	});
-	const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-	if (typeof spreadsheetId !== 'string') {
-		throw new Error('No Sheet ID in Environment');
-	} else {
-		// console.log('Sheet ID:', spreadsheetId);
-	}
 	// console.log('Project ID:', await auth.getProjectId());
 	// console.log('Credentials:', await auth.getCredentials());
 	const doc = new GoogleSpreadsheet(spreadsheetId, auth);
