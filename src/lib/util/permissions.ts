@@ -13,12 +13,12 @@ export const ACCESS_MATRIX: {[Key in AccountType]: {[Key in Access]: boolean}} =
 };
 
 export function getAccountTypes(accountTypes: string): AccountType[] {
-	return accountTypes.split(',') as AccountType[];
+	return accountTypes.split(',') as AccountType[] || [];
 }
 
-export function hasAccountType(accountTypes: AccountType[] | string, accountType: AccountType): boolean {
+export function hasAccountType(accountTypes: AccountType[] | string | undefined, accountType: AccountType): boolean {
 	const types = typeof accountTypes === 'string' ? getAccountTypes(accountTypes) : accountTypes;
-	return types.some((type) => type === accountType);
+	return !!types?.some((type) => type === accountType);
 }
 
 export function hasPermissions(accountTypes: AccountType[], access: Access): boolean {

@@ -26,13 +26,13 @@ export const Nav = () => {
       </Link>
       <Link
         className={`${styles.link} ${pathname === "/settings" ? styles.active : ""}`}
-        href="/settings" hidden={!hasAccountType(data?.accountTypes!, "user")}
+        href="/settings" hidden={!hasAccountType(data?.accountTypes, "user")}
       >
         Settings
       </Link>
       <Link
         className={`${styles.link} ${pathname === "/admin" ? styles.active : ""}`}
-        href="/admin" hidden={!hasAccountType(data?.accountTypes!, "admin")}
+        href="/admin" hidden={!hasAccountType(data?.accountTypes, "admin")}
       >
         Admin
       </Link>
