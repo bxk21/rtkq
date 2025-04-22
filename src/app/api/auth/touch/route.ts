@@ -1,13 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-interface Context {
-	params: {
-		
-	};
-}
-
-export async function PATCH(request: NextRequest, context: Context) {
+export async function PATCH(request: NextRequest) {
 	// const body: { username: string, password: string } = await request.json();
 	const ip = request.headers.get('X-Forwarded-For');
 	// https://stackoverflow.com/questions/68338838/how-to-get-the-ip-address-of-the-client-from-server-side-in-next-js-app
