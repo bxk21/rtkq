@@ -1,5 +1,5 @@
 import { verifyToken } from "@/src/lib/backend/sheets/token";
-import { getAccountTypes, getUserData, getUserRow, hasPerms } from "@/src/lib/backend/sheets/user";
+import { getRoles, getUserData, getUserRow, hasPerms } from "@/src/lib/backend/sheets/user";
 import { withLock } from "@/src/lib/backend/util/lock";
 import { UserInfo } from "@/src/lib/types/userTypes";
 import { HttpStatusCode } from "axios";
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, context: Context): Promise<NextR
 		if (!token) { return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'Not Logged In'}); }
 
 		if (token.userId !== requestedUserId) { // Requesting Other User
-			if ((await getAccountTypes(requestedUserId)).includes('admin')) { // If the other user is an Admin
+			if ((await getRoles(requestedUserId)).includes('admin')) { // If the other user is an Admin
 				if (!await hasPerms(token.userId, "readUsers")) {
 					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Read other User\'s Info'});
 				}
@@ -67,7 +67,7 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
 		if (!token) { return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'Not Logged In'}); }
 
 		if (token.userId !== requestedUserId) { // Requesting Other User
-			if ((await getAccountTypes(requestedUserId)).includes('admin')) { // If the other user is an Admin
+			if ((await getRoles(requestedUserId)).includes('admin')) { // If the other user is an Admin
 				if (!await hasPerms(token.userId, "editUsers")) {
 					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Edit other User\'s Info'});
 				}

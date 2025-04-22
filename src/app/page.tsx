@@ -1,3 +1,3 @@
-import Data from "../components/user/user/Data";
+import Data from "@/src/components/user/user/Data";
 
 export default Data;

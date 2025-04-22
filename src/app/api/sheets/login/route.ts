@@ -5,11 +5,6 @@ import { HttpStatusCode } from "axios";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-// export async function PUT(request: NextRequest, context: Context) {
-// 	const body: { username: string, password: string } = await request.json();
-// 	const ip = request.headers.get('X-Forwarded-For'); // get IP address
-// }
-
 /**
  * Creates a User Account
  */

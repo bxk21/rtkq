@@ -6,7 +6,7 @@ import { getMetaData, setMetaData } from "./metadata";
 import { checkPasswordAgainstSaltAndHash, generateSaltAndHash } from "./crypto";
 import { HttpStatusCode } from "axios";
 import { assignToken } from "./token";
-import { Access, AccountType, hasPermissions } from "../../util/permissions";
+import { Access, AccountType, getAccountTypes, hasPermissions } from "../../util/permissions";
 
 let userWorksheet: GoogleSpreadsheetWorksheet | undefined;
 
@@ -192,10 +192,10 @@ export async function setUserData(userId: number, userData: Partial<UserColumns>
 	return true;
 }
 
-export async function getAccountTypes(userId: number): Promise<AccountType[]> {
-	return (await getUserData(userId))?.accountTypes?.split(',') as AccountType[];
+export async function getRoles(userId: number): Promise<AccountType[]> {
+	return getAccountTypes((await getUserData(userId))?.accountTypes!);
 }
 
 export async function hasPerms(userId: number, access: Access): Promise<boolean> {
-	return hasPermissions((await getAccountTypes(userId)), access);
+	return hasPermissions((await getRoles(userId)), access);
 }

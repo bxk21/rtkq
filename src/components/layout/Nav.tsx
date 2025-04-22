@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 
 import styles from "../styles/layout.module.css";
 import { useSelector } from "react-redux";
-import { selectUserId } from "../lib/store/slices/tokenSlice";
-import { useGetUserInfoQuery } from "../lib/store/slices/sheetsApiSlice";
+import { selectUserId } from "../../lib/store/slices/tokenSlice";
+import { useGetUserInfoQuery } from "../../lib/store/slices/sheetsApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { AccountType, hasAccountType } from "@/src/lib/util/permissions";
 
 export const Nav = () => {
 	const userId = useSelector(selectUserId);
@@ -25,7 +26,7 @@ export const Nav = () => {
       </Link>
       <Link
         className={`${styles.link} ${pathname === "/" ? styles.active : ""}`}
-        href="/" hidden={!data?.isAdmin}
+        href="/" hidden={!hasAccountType(data?.accountTypes!, "admin")}
       >
         Admin
       </Link>
