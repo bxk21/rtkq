@@ -116,6 +116,7 @@ export async function assignToken(userId: UserId, checkExisting: boolean = false
 	};
 }
 
+/** Verifies and Refreshes Token */
 export async function verifyToken(headers: Headers): Promise<UserSession | null> {
 	const userId = toInt(headers.get('userId'));
 	const token = headers.get('token');

@@ -6,6 +6,7 @@ import { getMetaData, setMetaData } from "./metadata";
 import { checkPasswordAgainstSaltAndHash, generateSaltAndHash } from "./crypto";
 import { HttpStatusCode } from "axios";
 import { assignToken } from "./token";
+import { Access, AccountType, hasPermissions } from "../../util/permissions";
 
 let userWorksheet: GoogleSpreadsheetWorksheet | undefined;
 
@@ -27,7 +28,7 @@ async function getUserSheet(): Promise<GoogleSpreadsheetWorksheet> {
 }
 
 /** Gets the row for a given user using a unique identifier */
-async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promise<GoogleSpreadsheetRow<Partial<UserColumns>> | null> {
+export async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promise<GoogleSpreadsheetRow<Partial<UserColumns>> | null> {
 	const sheet = await getUserSheet();
 	const lastUserIndex = (await getMetaData('lastUserIndex')).get('value');
 	if (lastUserIndex < 1) { return null; } // User Sheet is Empty
@@ -191,9 +192,10 @@ export async function setUserData(userId: number, userData: Partial<UserColumns>
 	return true;
 }
 
-/**
- * FIXME: isAdmin is a string
- */
-export async function isAdmin(userId: number): Promise<boolean> {
-	return (await getUserData(userId))?.isAdmin as unknown as string === 'true';
+export async function getAccountTypes(userId: number): Promise<AccountType[]> {
+	return (await getUserData(userId))?.accountTypes?.split(',') as AccountType[];
+}
+
+export async function hasPerms(userId: number, access: Access): Promise<boolean> {
+	return hasPermissions((await getAccountTypes(userId)), access);
 }

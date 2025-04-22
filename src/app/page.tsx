@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
+import Data from "../components/user/user/Data";
 
-export default function IndexPage() {
-	redirect('/login');
-}
+export default Data;

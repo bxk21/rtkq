@@ -4,14 +4,14 @@ export const USER_SHEET = 'users';
 
 export type UserId = number;
 
-export const USER_COLUMNS = ['userId', 'userName', 'hash', 'salt', 'touches', 'data', 'isAdmin'];
+export const USER_COLUMNS = ['userId', 'userName', 'hash', 'salt', 'touches', 'data', 'accountTypes'];
 
 export interface UserColumns extends UserInfo, UserAuth, UserSession {};
 
 export interface UserInfo extends UserIdentifiers {
 	touches: number,
 	data: string,
-	isAdmin: boolean
+	accountTypes: string
 };
 
 /** Unique properties of a user */

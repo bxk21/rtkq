@@ -2,12 +2,13 @@ import { RootState } from "@/src/lib/store/store";
 import { LoginInfo, UserId, UserInfo } from "@/src/lib/types/userTypes";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// Define a service using a base URL and expected endpoints
+/**
+ * The API Slice for everything within the Sheets Database
+ */
 export const sheetsApiSlice = createApi({
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/api/auth",
-		// Add Token to every header
-		prepareHeaders: (headers, api) => {
+		baseUrl: "/api/sheets",
+		prepareHeaders: (headers, api) => { // Add Token to every header
 			const state = api.getState() as RootState;
 
 			const token = state.token.token;
@@ -20,37 +21,9 @@ export const sheetsApiSlice = createApi({
 			}
 			return headers;
 		},
-		// This may be properly done through the matchFulfilled
-		// Update Token from every response
-		// responseHandler: async (response) => {
-		// 	const token = response.headers.get('token');
-		// 	// null will turn into 0, which will then turn back into null;
-		// 	const tokenCreated = parseInt(response.headers.get('tokenCreated') ?? '0') || null;
-
-		// 	// Update Token
-		// 	setToken({ // TODO: send to store
-		// 		token,
-		// 		tokenCreated
-		// 	});
-
-		// 	return response;
-		// },
 	}),
 	reducerPath: "local",
-	// Tag types are used for caching and invalidation.
-	tagTypes: ["Touches", "UserInfo"],
-	// // to prevent circular type issues, the return type needs to be annotated as any
-	// extractRehydrationInfo(action, { reducerPath }): any {
-	// 	if (isHydrateAction(action)) {
-	// 		// when persisting the api reducer
-	// 		if (action.key === 'key used with redux-persist') {
-	// 			return action.payload;
-	// 		}
-
-	// 		// When persisting the root reducer
-	// 		// return action.payload[api.reducerPath];
-	// 	}
-	// },
+	tagTypes: ["Touches", "UserInfo"], // Tag types are used for caching and invalidation.
 	endpoints: (build) => ({
 		// How do I get other slice's mutations to invalidate my touches?
 		// https://stackoverflow.com/questions/74655825/can-i-invalidate-an-rtk-query-from-a-different-slice-of-my-store
@@ -58,7 +31,6 @@ export const sheetsApiSlice = createApi({
 			query: () => ({
 				url: '/touch',
 				method: 'GET',
-				// header: cookies or sessionId or something
 			}),
 			providesTags: ['Touches'],
 			transformResponse: (response: { data: number }, _meta, _arg) => response.data,
@@ -74,34 +46,17 @@ export const sheetsApiSlice = createApi({
 		}),
 
 		getUserInfo: build.query<Partial<UserInfo>, UserId>({
-			// queryFn: async (_args, api, _extraOptions, baseQuery) => {
-			// 	const state = api.getState() as RootState;
-			// 	console.log('state', state);
-			// 	const userId = selectUserId(state);
-			// 	if (!userId) {
-			// 		api.abort('Not Logged In');
-			// 	}
-			// 	try {
-			// 		const result = await baseQuery({
-			// 			url: `/user/${userId}`,
-			// 		});
-
-			// 		if (result.error) { return result }
-
-			// 		return {
-			// 			data: result.data as UserInfo,
-			// 			meta: result.meta
-			// 		};
-			// 	} catch (error) {
-			// 		return { error: error as FetchBaseQueryError };
-			// 	}
-			// },
 			query: (userId) => `/user/${userId}`,
-			// providesTags: (_result, _error, userId) => {
-			// 	return [{ type: 'UserInfo', id: userId ?? -2 }];
-			// },
 			providesTags: ['UserInfo'],
-			// transformResponse: (response: { data: UserInfo }, _meta: any, _arg: any) => response?.data,
+		}),
+
+		patchUserInfo: build.mutation<boolean, Partial<UserInfo>>({
+			query: ({userId, ...data}, ) => ({
+				url: `/user/${userId}`,
+				method: 'PATCH',
+				body: data
+			}),
+			invalidatesTags: ['UserInfo']
 		}),
 
 		login: build.mutation<boolean, LoginInfo> ({
@@ -111,7 +66,6 @@ export const sheetsApiSlice = createApi({
 				body: loginInfo
 			}),
 			invalidatesTags: ['Touches', 'UserInfo'],
-			// transformResponse: (response: { data: UserId }) => response.data
 		}),
 
 		newUser: build.mutation<boolean, LoginInfo> ({
@@ -121,12 +75,11 @@ export const sheetsApiSlice = createApi({
 				body: loginInfo
 			}),
 			invalidatesTags: ['Touches', 'UserInfo'],
-			// transformResponse: (response: { data: UserId }) => response.data
 		}),
 	}),
 });
 
-export const { useLoginMutation, useGetUserInfoQuery, useTouchMutation, useGetTouchesQuery, useNewUserMutation, endpoints } = sheetsApiSlice;
+export const { useLoginMutation, useGetUserInfoQuery, usePatchUserInfoMutation, useTouchMutation, useGetTouchesQuery, useNewUserMutation, endpoints } = sheetsApiSlice;
 
 export const allFulfilledMatches = Object.values(endpoints).map((endpoint) => endpoint.matchFulfilled);
 		// https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates
