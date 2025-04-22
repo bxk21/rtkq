@@ -14,7 +14,7 @@ export const Nav = () => {
         className={`${styles.link} ${pathname === "/" ? styles.active : ""}`}
         href="/"
       >
-        Home / Login
+        Home
       </Link>
       {/* <Link
         className={`${styles.link} ${

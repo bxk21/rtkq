@@ -1,4 +1,4 @@
-import { Sheet } from "@/src/lib/backend/auth/sheets";
+import { createUserAccount, loginUser } from "@/src/lib/backend/sheets/user";
 import { withLock } from "@/src/lib/backend/util/lock";
 import { LoginInfo } from "@/src/lib/types/userTypes";
 import { HttpStatusCode } from "axios";
@@ -20,7 +20,7 @@ interface Context {
 export async function PUT(request: NextRequest, context: Context) {
 	const { userName, password }: LoginInfo = await request.json();
 	return await withLock(async () => {
-		const error = await new Sheet().createUserAccount(userName, password);
+		const error = await createUserAccount(userName, password);
 
 		if (!error) {
 			return NextResponse.json({confirmed: true});
@@ -34,37 +34,30 @@ export async function PUT(request: NextRequest, context: Context) {
 }
 
 /**
- * TODO: Proper Login Procedure
- * https://authjs.dev/getting-started/authentication/credentials
- * Hash Password + more?
- * Check username + hash against database
- * if not confirmed, return error
- * // return NextResponse.json(null, {status: 401, statusText: 'Invalid Username or Password'})
- * Return a JWT Token
+ * Logs a user In
  */
 export async function POST(request: NextRequest, context: Context) {
 	const { userName, password }: LoginInfo = await request.json();
-	return await withLock(async () => {
-		const userSession = await new Sheet().loginUser(userName, password);
+	return await withLock(
+		async () => {
+			const userSession = await loginUser(userName, password);
 
-		if (!userSession) {
-			return NextResponse.json(null, { status: 401, statusText: 'Incorrect Username and/or Password' })
-		} else {
-			return NextResponse.json(
-				{
-					userId: userSession.userId,
-					token: userSession.token,
-					tokenCreated: userSession.tokenCreated.toString()
-				},
-				{
-					headers: {
-						token: userSession.token,
-						tokenCreated: userSession.tokenCreated.toString()
+			if (!userSession) {
+				return NextResponse.json(null, { status: HttpStatusCode.Unauthorized, statusText: 'Incorrect Username and/or Password' });
+			} else {
+				return NextResponse.json(
+					true,
+					{
+						headers: {
+							userId: userSession.userId.toString(),
+							token: userSession.token,
+							tokenCreated: userSession.tokenCreated.toString()
+						}
 					}
-				}
-			);
-		}
-	}, 'Log In: ' + userName).catch((_error) => {
+				);
+			}
+		}, 'Log In: ' + userName
+	).catch((_error) => {
 		console.log('caught error', _error);
 		return NextResponse.json(null, {status: HttpStatusCode.InternalServerError});
 	});

@@ -14,6 +14,5 @@ export default function User() {
 			<NewUser/>
 			<Login/>
 		</div>}
-		{userId && <UserInfo/>}
 	</div>
 }

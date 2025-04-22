@@ -4,6 +4,7 @@ import styles from "./UserInfo.module.css";
 import { useGetUserInfoQuery } from "@/src/lib/store/slices/sheetsApiSlice";
 import { useSelector } from "react-redux";
 import { skipToken } from "@reduxjs/toolkit/query";
+import Link from "next/link";
 // import { signIn } from "@/auth";
 
 export const UserInfo = () => {
@@ -18,9 +19,9 @@ export const UserInfo = () => {
 	} = useGetUserInfoQuery(userId ?? skipToken);
 
 	return <div>
-		{isUninitialized && <div>
-			Uninitialized: {userId}
-		</div>}
+		{isUninitialized && <Link href="/user">
+			Login / Sign Up
+		</Link>}
 		{isError && <div>
 			<h1>There was an error: {JSON.stringify(error)}</h1>
 		</div>}

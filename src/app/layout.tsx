@@ -5,6 +5,7 @@ import { Nav } from "@/src/components/Nav";
 import "@/src/styles/globals.css";
 import styles from "@/src/styles/layout.module.css";
 import { Metadata } from "next";
+import { UserInfo } from "../components/user/userInfo/UserInfo";
 
 interface Props {
 	readonly children: ReactNode;
@@ -16,9 +17,10 @@ export default function RootLayout({ children }: Props) {
 			<html lang="en">
 				<body>
 					<section className={styles.container}>
-						<Nav />
 
 						<header className={styles.header}>
+							<UserInfo/>
+							<Nav />
 							<Image
 								src="/logo.svg"
 								className={styles.logo}

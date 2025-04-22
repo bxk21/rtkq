@@ -16,6 +16,10 @@ export const sheetsApiSlice = createApi({
 			if (token) {
 				headers.set('token', token);
 			}
+			const userId = state.token.userId;
+			if (userId) {
+				headers.set('userId', userId.toString());
+			}
 			return headers;
 		},
 		// This may be properly done through the matchFulfilled
@@ -102,7 +106,7 @@ export const sheetsApiSlice = createApi({
 			transformResponse: (response: { data: UserInfo }, _meta: any, _arg: any) => response?.data,
 		}),
 
-		login: build.mutation<UserSession, LoginInfo> ({
+		login: build.mutation<UserSession, boolean> ({
 			query: (loginInfo) => ({
 				url: '/login',
 				method: 'POST',
@@ -124,14 +128,9 @@ export const sheetsApiSlice = createApi({
 	}),
 });
 
-export const { useLoginMutation, useGetUserInfoQuery, useTouchMutation, useGetTouchesQuery, useNewUserMutation,
-	endpoints: {
-		login: {
-			matchFulfilled: loginMatchFulfilled
-		}
-	}
-} = sheetsApiSlice;
+export const { useLoginMutation, useGetUserInfoQuery, useTouchMutation, useGetTouchesQuery, useNewUserMutation, endpoints } = sheetsApiSlice;
 
+export const allFulfilledMatches = Object.values(endpoints).map((endpoint) => endpoint.matchFulfilled);
 		// https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates
 		// // onQueryStarted is useful for optimistic updates
 		// // The 2nd parameter is the destructured `MutationLifecycleApi`

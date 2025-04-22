@@ -1,6 +1,7 @@
-import type { AppThunk } from "@/src/lib/store/store";
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { loginMatchFulfilled } from "./sheetsApiSlice";
+import { createSlice, isAnyOf } from "@reduxjs/toolkit";
+import { allFulfilledMatches } from "./sheetsApiSlice";
+import { BaseQueryFn, BaseQueryMeta } from "@reduxjs/toolkit/query";
+import { toInt } from "../../util/string";
 
 export interface TokenState {
 	userId: number | null;
@@ -13,6 +14,8 @@ const initialState: TokenState = {
 	token: null,
 	tokenCreated: null,
 };
+
+export type Meta = BaseQueryMeta<BaseQueryFn<any, unknown, unknown, {}, { response: { headers: Headers } }>>;
 
 // If you are not using async thunks you can use the standalone `createSlice`.
 export const tokenSlice = createSlice({
@@ -27,15 +30,17 @@ export const tokenSlice = createSlice({
 		// }
 	},
 	extraReducers: (builder) => {
-		builder.addMatcher(
-			loginMatchFulfilled,
-			(state, { payload }) => {
-				console.log('WRITING TO TOKEN STATE:', payload);
-				state.userId = payload.userId;
-				state.token = payload.token;
-				state.tokenCreated = payload.tokenCreated;
+		builder.addMatcher( // Get Token Data from all Headers
+			isAnyOf(...allFulfilledMatches),
+			(state, { meta: { baseQueryMeta } }) => {
+				const headers = (baseQueryMeta as Meta)!.response.headers
+				console.log('WRITING TO TOKEN STATE:', headers, Object.keys(headers));
+				state.userId = toInt(headers.get('userId'));
+				state.token = headers.get('token');
+				state.tokenCreated = toInt(headers.get('tokenCreated'));
 			},
-		)
+		);
+		// TODO: Remove Token/Login Data on NOT LOGGED IN failure
 	},
 	selectors: {
 		selectUserId: (counter) => counter.userId,
