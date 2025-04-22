@@ -27,7 +27,7 @@ async function getUserSheet(): Promise<GoogleSpreadsheetWorksheet> {
 }
 
 /** Gets the row for a given user using a unique identifier */
-async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promise<GoogleSpreadsheetRow<UserColumns> | null> {
+async function getUserRow(searchProp: RequireOneExactly<UserIdentifiers>): Promise<GoogleSpreadsheetRow<Partial<UserColumns>> | null> {
 	const sheet = await getUserSheet();
 	const lastUserIndex = (await getMetaData('lastUserIndex')).get('value');
 	if (lastUserIndex < 1) { return null; } // User Sheet is Empty

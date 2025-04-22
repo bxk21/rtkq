@@ -31,9 +31,9 @@ async function getTokenSheet(): Promise<GoogleSpreadsheetWorksheet> {
  * Deletes the entire row for all expired or invalid Tokens.
  * Must Process backwards (bottom-up) to prevent row deletions from moving indices around.
  */
-async function getTokenRow(userId: UserId): Promise<[GoogleSpreadsheetRow<UserSession>, (() => Promise<void>) | null] | null> {
+async function getTokenRow(userId: UserId): Promise<[GoogleSpreadsheetRow<Partial<UserSession>>, (() => Promise<void>) | null] | null> {
 	const tokenSheet = await getTokenSheet();
-	const tokenRows: GoogleSpreadsheetRow<UserSession>[] = await tokenSheet.getRows();
+	const tokenRows: GoogleSpreadsheetRow<Partial<UserSession>>[] = await tokenSheet.getRows();
 
 	console.log('get Token Row', tokenRows.map((row) => row.toObject()));
 
@@ -66,7 +66,7 @@ async function getTokenRow(userId: UserId): Promise<[GoogleSpreadsheetRow<UserSe
 
 /** Run by getTokenRow to continue the row cleanup after whatever is done with the searched row */
 async function cleanupTokens(tokenSheet: GoogleSpreadsheetWorksheet, lastIndex: number): Promise<void> {
-	const tokenRows: GoogleSpreadsheetRow<UserSession>[] = await tokenSheet.getRows({ limit: lastIndex });
+	const tokenRows: GoogleSpreadsheetRow<Partial<UserSession>>[] = await tokenSheet.getRows({ limit: lastIndex });
 
 	let deleteCount = 0;
 	for (let i = tokenRows.length -1; i >= 0; i--) { // iterate through rows backwards

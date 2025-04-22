@@ -25,7 +25,7 @@ async function getMetaDataSheet(): Promise<GoogleSpreadsheetWorksheet> {
 }
 
 /** Gets a piece of metadata by the key and its address in a tuple. */
-export async function getMetaData(key: MetadataKey): Promise<GoogleSpreadsheetRow<Metadata>> {
+export async function getMetaData(key: MetadataKey): Promise<GoogleSpreadsheetRow<Partial<Metadata>>> {
 	const metadataWorksheet = await getMetaDataSheet();
 	await metadataWorksheet.loadCells(METEDATA_INDEX_A1);
 	const metadataSizeCell = metadataWorksheet.getCellByA1(METEDATA_INDEX_A1);
@@ -34,7 +34,7 @@ export async function getMetaData(key: MetadataKey): Promise<GoogleSpreadsheetRo
 		// metadataSizeCell.save();
 		throw new Error('lastMetadataIndex not found');
 	}
-	const rows: GoogleSpreadsheetRow<Metadata>[] = await metadataWorksheet.getRows({ limit: metadataSizeCell.numberValue + 1 });
+	const rows: GoogleSpreadsheetRow<Partial<Metadata>>[] = await metadataWorksheet.getRows({ limit: metadataSizeCell.numberValue + 1 });
 	let dataRow = rows.find((row) => row.get("key") === key);
 	if (!dataRow) {
 		dataRow = await metadataWorksheet.addRow({ key, value: '' });
@@ -44,7 +44,7 @@ export async function getMetaData(key: MetadataKey): Promise<GoogleSpreadsheetRo
 	return dataRow;
 }
 
-export async function setMetaData(key: MetadataKey, value: string | number | ((dataRow: GoogleSpreadsheetRow<Metadata>) => string | number)): Promise<void> {
+export async function setMetaData(key: MetadataKey, value: string | number | ((dataRow: GoogleSpreadsheetRow<Partial<Metadata>>) => string | number)): Promise<void> {
 	const dataRow = await getMetaData(key);
 	if (typeof value === 'function') {
 		dataRow.set('value', value(dataRow))
