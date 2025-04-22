@@ -13,7 +13,7 @@ async function getGoogleSpreadsheet(): Promise<GoogleSpreadsheet> {
 
 	const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 	if (typeof spreadsheetId !== 'string') { throw new Error('No Sheet ID in Environment'); }
-	const private_key = process.env.GOOGLE_SHEET_PRIVATE_KEY;
+	const private_key = process.env.GOOGLE_SHEET_PRIVATE_KEY!.split(String.raw`\n`).join('\n'); // https://stackoverflow.com/questions/74131595/error-error1e08010cdecoder-routinesunsupported-with-google-auth-library
 	if (typeof private_key !== 'string') { throw new Error('No Private Key in Environment'); }
 	const client_email = process.env.GOOGLE_SHEET_CLIENT_EMAIL;
 	if (typeof client_email !== 'string') { throw new Error('No Client Email in Environment'); }
