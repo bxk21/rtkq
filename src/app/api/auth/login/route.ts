@@ -5,10 +5,6 @@ import { HttpStatusCode } from "axios";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-interface Context {
-	params: undefined;
-}
-
 // export async function PUT(request: NextRequest, context: Context) {
 // 	const body: { username: string, password: string } = await request.json();
 // 	const ip = request.headers.get('X-Forwarded-For'); // get IP address
@@ -17,7 +13,7 @@ interface Context {
 /**
  * Creates a User Account
  */
-export async function PUT(request: NextRequest, context: Context): Promise<NextResponse<true | null>> {
+export async function PUT(request: NextRequest): Promise<NextResponse<true | null>> {
 	const { userName, password }: LoginInfo = await request.json();
 	return await withLock(async (): Promise<NextResponse<true | null>> => {
 		const error = await createUserAccount(userName, password);
@@ -36,7 +32,7 @@ export async function PUT(request: NextRequest, context: Context): Promise<NextR
 /**
  * Logs a user In
  */
-export async function POST(request: NextRequest, context: Context): Promise<NextResponse<true | null>> {
+export async function POST(request: NextRequest): Promise<NextResponse<true | null>> {
 	const { userName, password }: LoginInfo = await request.json();
 	return await withLock(
 		async (): Promise<NextResponse<true | null>> => {
