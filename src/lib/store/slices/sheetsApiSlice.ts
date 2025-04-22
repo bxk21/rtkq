@@ -106,7 +106,7 @@ export const sheetsApiSlice = createApi({
 			transformResponse: (response: { data: UserInfo }, _meta: any, _arg: any) => response?.data,
 		}),
 
-		login: build.mutation<UserSession, boolean> ({
+		login: build.mutation<boolean, LoginInfo> ({
 			query: (loginInfo) => ({
 				url: '/login',
 				method: 'POST',
@@ -116,7 +116,7 @@ export const sheetsApiSlice = createApi({
 			// transformResponse: (response: { data: UserId }) => response.data
 		}),
 
-		newUser: build.mutation<UserSession, LoginInfo> ({
+		newUser: build.mutation<boolean, LoginInfo> ({
 			query: (loginInfo) => ({
 				url: '/login',
 				method: 'PUT',
