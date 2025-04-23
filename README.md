@@ -26,3 +26,13 @@ User Sessions are created when a User Logs In. Every Session has a userId, token
 Tokens are sent in the request header of every user API.
 
 Tokens are assigned in the response header of the Login API and returned in every user API. The returned Token may be the same as the one given in the request, or may be a newly generated one to refresh timeouts.
+
+## Data
+
+User Data is stored in the data base and is retrieved and updated though the APIs.
+
+Currently, a User may store and retrieve a string to the database to verify it saving. More functionality is planned.
+
+## Roles and Permissions
+
+API requests will check user's permissions before performing certain actions and will return appropriate errors.

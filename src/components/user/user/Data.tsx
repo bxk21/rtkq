@@ -5,11 +5,18 @@ import { useSelector } from "react-redux";
 import { redirect } from "next/navigation";
 import { useGetUserInfoQuery, usePatchUserInfoMutation } from "@/src/lib/store/slices/sheetsApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useEffect } from "react";
 
 export default function Data() {
 	const userId = useSelector(selectUserId);
-	const { data } = useGetUserInfoQuery(userId ?? skipToken);
-	const [ patchUserInfo, { isError, error, reset, isLoading, isUninitialized, isSuccess } ] = usePatchUserInfoMutation();
+	const {
+		data,
+		isLoading: isLoadingData,
+		isSuccess: isDataSuccess,
+		isError: isDataError,
+		error: dataError
+	} = useGetUserInfoQuery(userId ?? skipToken);
+	const [ patchUserInfo, { isLoading: isPatching } ] = usePatchUserInfoMutation();
 
 	function submitUserInfo(formData: FormData) {
 		patchUserInfo({
@@ -18,15 +25,27 @@ export default function Data() {
 		});
 	}
 
-	if (!data) { redirect('/login'); }
+	useEffect(() => {
+		if (!userId) {
+			redirect('/login');
+		}
+	}, [userId]);
 
 	return <div>
-		<form action={submitUserInfo}>
+		{isLoadingData && <div>
+			Loading...
+		</div>}
+
+		{isDataError && <div>
+			<h1>There was an error: {JSON.stringify(dataError)}</h1>
+		</div>}
+
+		{isDataSuccess && <form action={submitUserInfo}>
 			<label> Data: </label>
-			<textarea rows={20} cols={200} id='data' name='data' defaultValue={data.data} disabled={isLoading || isError}/>
-			{!isLoading && <button type="submit">
+			<textarea rows={20} cols={200} id='data' name='data' defaultValue={data?.data} disabled={isPatching}/>
+			{!isPatching && <button type="submit">
 				Save
 			</button>}
-		</form>
+		</form>}
 	</div>
 }

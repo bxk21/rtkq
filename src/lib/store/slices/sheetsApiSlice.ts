@@ -27,23 +27,23 @@ export const sheetsApiSlice = createApi({
 	endpoints: (build) => ({
 		// How do I get other slice's mutations to invalidate my touches?
 		// https://stackoverflow.com/questions/74655825/can-i-invalidate-an-rtk-query-from-a-different-slice-of-my-store
-		getTouches: build.query<number, void>({
-			query: () => ({
-				url: '/touch',
-				method: 'GET',
-			}),
-			providesTags: ['Touches'],
-			transformResponse: (response: { data: number }, _meta, _arg) => response.data,
-			transformErrorResponse: (response: { status: string | number }, _meta, _arg) => response.status,
-		}),
+		// getTouches: build.query<number, void>({
+		// 	query: () => ({
+		// 		url: '/touch',
+		// 		method: 'GET',
+		// 	}),
+		// 	providesTags: ['Touches'],
+		// 	transformResponse: (response: { data: number }, _meta, _arg) => response.data,
+		// 	transformErrorResponse: (response: { status: string | number }, _meta, _arg) => response.status,
+		// }),
 
-		touch: build.mutation<number, void>({
-			query: () => ({
-				url: '/touch',
-				method: 'PATCH'
-			}),
-			invalidatesTags: ['Touches'],
-		}),
+		// touch: build.mutation<number, void>({
+		// 	query: () => ({
+		// 		url: '/touch',
+		// 		method: 'PATCH'
+		// 	}),
+		// 	invalidatesTags: ['Touches'],
+		// }),
 
 		getUserInfo: build.query<Partial<UserInfo>, UserId>({
 			query: (userId) => `/user/${userId}`,
@@ -79,7 +79,7 @@ export const sheetsApiSlice = createApi({
 	}),
 });
 
-export const { useLoginMutation, useGetUserInfoQuery, usePatchUserInfoMutation, useTouchMutation, useGetTouchesQuery, useNewUserMutation, endpoints } = sheetsApiSlice;
+export const { useLoginMutation, useGetUserInfoQuery, usePatchUserInfoMutation, useNewUserMutation, endpoints } = sheetsApiSlice;
 
 export const allFulfilledMatches = Object.values(endpoints).map((endpoint) => endpoint.matchFulfilled);
 		// https://redux-toolkit.js.org/rtk-query/usage/manual-cache-updates#optimistic-updates

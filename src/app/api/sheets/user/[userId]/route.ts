@@ -66,6 +66,8 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
 		const token = await verifyAndRefreshToken(request.headers);
 		if (!token) { return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'Not Logged In'}); }
 
+		// ======== Permissions ========
+
 		if (token.userId !== requestedUserId) { // Requesting Other User
 			if ((await getRoles(requestedUserId)).includes('admin')) { // If the other user is an Admin
 				if (!await hasPerms(token.userId, "editAdmins")) {
@@ -83,7 +85,15 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
 		const userRow = await getUserRow({ userId: requestedUserId });
 		if (!userRow) { return NextResponse.json(null, {status: HttpStatusCode.InternalServerError, statusText: 'Server Failed to Read User Data'}); }
 
-		userRow.assign(body);
+		// ======== Validations ========
+
+		if (body.data && body.data.length > 50000) { return NextResponse.json(null, {status: HttpStatusCode.PayloadTooLarge, statusText: 'Data cannot be more than 50000 characters'}); }
+
+		// ========
+
+		userRow.assign({
+			data: body.data && body.data.length < 50000 ? body.data : undefined
+		});
 		await userRow.save();
 
 		return NextResponse.json(
