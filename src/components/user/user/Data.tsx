@@ -12,7 +12,6 @@ export default function Data() {
 	const [ patchUserInfo, { isError, error, reset, isLoading, isUninitialized, isSuccess } ] = usePatchUserInfoMutation();
 
 	function submitUserInfo(formData: FormData) {
-		// console.log('form', formData.entries().toArray(), formData.get('data'));
 		patchUserInfo({
 			userId: userId!,
 			data: formData.get('data') as string
