@@ -23,9 +23,8 @@ export default function Data() {
 
 	return <div>
 		<form action={submitUserInfo}>
-			<label>
-				Data: <textarea rows={5} cols={20} id='data' name='data' defaultValue={data.data}/>
-			</label>
+			<label> Data: </label>
+			<textarea rows={20} cols={200} id='data' name='data' defaultValue={data.data} disabled={isLoading || isError}/>
 			{!isLoading && <button type="submit">
 				Save
 			</button>}
