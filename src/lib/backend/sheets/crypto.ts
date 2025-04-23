@@ -5,7 +5,8 @@ const SIZE = 16;
 const ITERATIONS = 10000;
 const ENCODING = 'base64';
 const DIGEST = 'sha512';
-export const TOKEN_TIMEOUT = 60000; // One Hour // TODO wrong unit?
+export const TOKEN_TIMEOUT = 3600000; // One Hour
+export const TOKEN_EXPIRING = 3000000; // 50 Min
 
 export function random(size?: number): string {
 	return randomBytes(size ?? SIZE).toString(ENCODING);
@@ -32,6 +33,10 @@ export function generateToken(): UserToken {
 	}
 }
 
-export function isExpired(tokenCreated: number): boolean {
-	return (Date.now() - tokenCreated) > TOKEN_TIMEOUT;
+export function isExpired(tokenCreated: number | string): boolean {
+	return Date.now() - Number.parseInt(tokenCreated.toString()) > TOKEN_TIMEOUT;
+};
+
+export function isExpiring(tokenCreated: number | string): boolean {
+	return (Date.now() - Number.parseInt(tokenCreated.toString())) > TOKEN_TIMEOUT;
 };

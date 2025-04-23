@@ -1,6 +1,6 @@
 import { UserSession, USER_COLUMNS, UserInfo, UserColumns, UserIdentifiers, USER_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
-import { getSheet } from "./sheets";
+import { getSheet } from "./spreadsheet";
 import { FlatTwoDimentionalArray, RequireOneExactly } from "../../types/utilTypes";
 import { getMetaData, setMetaData } from "./metadata";
 import { checkPasswordAgainstSaltAndHash, generateSaltAndHash } from "./crypto";
@@ -158,7 +158,7 @@ export async function loginUser(userName: string, password: string): Promise<Use
 
 	const userId = userRow.get('userId');
 
-	return await assignToken(userId)!; // If checkExisting is false, assignToken always returns a UserSession
+	return await assignToken(userId);
 }
 
 /**

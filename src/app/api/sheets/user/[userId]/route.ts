@@ -1,4 +1,4 @@
-import { verifyToken } from "@/src/lib/backend/sheets/token";
+import { verifyAndRefreshToken } from "@/src/lib/backend/sheets/token";
 import { getRoles, getUserData, getUserRow, hasPerms } from "@/src/lib/backend/sheets/user";
 import { withLock } from "@/src/lib/backend/util/lock";
 import { UserInfo } from "@/src/lib/types/userTypes";
@@ -18,17 +18,17 @@ interface Context {
 export async function GET(request: NextRequest, context: Context): Promise<NextResponse<Partial<UserInfo> | null>> {
 	const requestedUserId = Number.parseInt((await context.params).userId);
 	return await withLock(async (): Promise<NextResponse<Partial<UserInfo> | null>> => {
-		const token = await verifyToken(request.headers);
+		const token = await verifyAndRefreshToken(request.headers);
 		if (!token) { return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'Not Logged In'}); }
 
 		if (token.userId !== requestedUserId) { // Requesting Other User
 			if ((await getRoles(requestedUserId)).includes('admin')) { // If the other user is an Admin
-				if (!await hasPerms(token.userId, "readUsers")) {
-					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Read other User\'s Info'});
-				}
-			} else {
 				if (!await hasPerms(token.userId, "readAdmins")) {
 					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Read other Admin\'s Info'});
+				}
+			} else {
+				if (!await hasPerms(token.userId, "readUsers")) {
+					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Read other User\'s Info'});
 				}
 			}
 		} else if (!await hasPerms(token.userId, "readSelf")) {
@@ -63,17 +63,17 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
 	const requestedUserId = Number.parseInt((await context.params).userId);
 	
 	return await withLock(async (): Promise<NextResponse<boolean | null>> => {
-		const token = await verifyToken(request.headers);
+		const token = await verifyAndRefreshToken(request.headers);
 		if (!token) { return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'Not Logged In'}); }
 
 		if (token.userId !== requestedUserId) { // Requesting Other User
 			if ((await getRoles(requestedUserId)).includes('admin')) { // If the other user is an Admin
-				if (!await hasPerms(token.userId, "editUsers")) {
-					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Edit other User\'s Info'});
-				}
-			} else {
 				if (!await hasPerms(token.userId, "editAdmins")) {
 					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Edit other Admin\'s Info'});
+				}
+			} else {
+				if (!await hasPerms(token.userId, "editUsers")) {
+					return NextResponse.json(null, {status: HttpStatusCode.Unauthorized, statusText: 'This User cannot Edit other User\'s Info'});
 				}
 			}
 		} else if (!await hasPerms(token.userId, "editSelf")) {

@@ -1,8 +1,8 @@
 import { UserSession, UserId, TOKEN_COLUMNS, TOKEN_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { toInt } from "../../util/string";
-import { getSheet } from "./sheets";
-import { generateToken, isExpired } from "./crypto";
+import { getSheet } from "./spreadsheet";
+import { generateToken, isExpired, isExpiring } from "./crypto";
 import { setMetaData } from "./metadata";
 
 let tokenWorksheet: GoogleSpreadsheetWorksheet | undefined;
@@ -29,6 +29,7 @@ async function getTokenSheet(): Promise<GoogleSpreadsheetWorksheet> {
 
 /**
  * Returns an auth token for the given user(Row).
+ * Will not return invalid or expired tokens, even if it matches userId.
  * Deletes the entire row for all expired or invalid Tokens.
  * Must Process backwards (bottom-up) to prevent row deletions from moving indices around.
  */
@@ -45,7 +46,7 @@ async function getTokenRow(userId: UserId): Promise<[GoogleSpreadsheetRow<Partia
 		const token = tokenRow.get("token");
 		if (
 			!tokenUserId || !token || !tokenCreated || // Invalid Token
-			isExpired(tokenCreated) || // ExpiredToken
+			isExpired(tokenCreated) || // Expired Token
 			(tokenUserId === userId && found) // Duplicate ID
 		) {
 			deleteCount++;
@@ -83,45 +84,49 @@ async function cleanupTokens(tokenSheet: GoogleSpreadsheetWorksheet, lastIndex: 
 }
 
 /** Generates, saves, and returns an auth token for the given user(Row). */
-export async function assignToken(userId: UserId, checkExisting: boolean = false): Promise<UserSession | null> {
-	const userToken = generateToken();
+export async function assignToken(userId: UserId): Promise<UserSession> {
+	const currentToken = await getTokenRow(userId);
 
+	const newData = { userId, ...generateToken() };
 
-	const out = await getTokenRow(userId);
-	// console.log('GENERATING TOKEN:', out);
-	if (out) { // Update Existing Token
-		const [tokenRow, cleanup] = out;
-		tokenRow.assign({
-			userId,
-			...userToken
-		});
+	if (!currentToken) { // Create New Token
+		await (await getTokenSheet()).addRow(newData);
+		await incrementMetadata();
+
+	} else { // Update Existing Token
+		const [tokenRow, cleanup] = currentToken;
+
+		tokenRow.assign(newData);
 		await tokenRow.save();
 		await cleanup?.();
-		// console.log('Updated Token:', tokenRow.toObject());
-	} else if (checkExisting) {
-		return null;
-	} else { // Create New Token
-		const tokenSheet = await getTokenSheet();
-		const tokenRow = await tokenSheet.addRow({
-			userId,
-			...userToken
-		});
-		await incrementMetadata();
-		// console.log('New Token:', tokenRow.toObject());
 	}
 
-	return {
-		userId,
-		...userToken
-	};
+	return newData;
 }
 
-/** Verifies and Refreshes Token */
-export async function verifyToken(headers: Headers): Promise<UserSession | null> {
+/** Verifies and Refreshes Token if Expiring */
+export async function verifyAndRefreshToken(headers: Headers): Promise<UserSession | null> {
 	const userId = toInt(headers.get('userId'));
 	const token = headers.get('token');
 
-	if (!userId || !token) { return null; }
+	if (!userId || !token) { return null; } // Invalid Headers
 
-	return await assignToken(userId, true);
+	const currentToken = await getTokenRow(userId);
+	if (!currentToken) { return null; } // Token not found
+	const [tokenRow, cleanup] = currentToken;
+
+	if (isExpiring(tokenRow.get('tokenCreated'))) {
+		const newData = { userId, ...generateToken() };
+		tokenRow.assign(newData);
+		await tokenRow.save();
+		await cleanup?.();
+
+		return newData;
+	} else {
+		return { // If Not Expiring and doesn't need refresh, return existing Token
+			userId,
+			token: tokenRow.get("token"),
+			tokenCreated: Number.parseInt(tokenRow.get('tokenCreated'))
+		};
+	}
 }

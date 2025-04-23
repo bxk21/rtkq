@@ -1,6 +1,6 @@
 import { METADATA_DATA, MetadataKey, Metadata, METEDATA_INDEX_A1, METADATA_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
-import { getSheet } from "./sheets";
+import { getSheet } from "./spreadsheet";
 
 let metadataWorksheet: GoogleSpreadsheetWorksheet | undefined;
 
