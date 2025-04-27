@@ -12,7 +12,7 @@ export const Login = () => {
 		})
 	};
 
-	return <div>
+	return <div className={styles.container}>
 		{isError && <div>
 			<h1>There was an error: {JSON.stringify(error)}</h1>
 		</div>}
@@ -21,7 +21,7 @@ export const Login = () => {
 			<h1>Loading...</h1>
 		</div>}
 
-		{(isUninitialized || isError) && <form action={submitLogin}>
+		{(isUninitialized || isError) && <form action={submitLogin} className={styles.form}>
 			<label>
 				Username: <input name="userName" type="string"/>
 			</label>
@@ -34,7 +34,7 @@ export const Login = () => {
 		</form>}
 
 		{/* This isn't really shown */}
-		{isSuccess && <div className={styles.container}>
+		{isSuccess && <div>
 			Logged In!
 		</div>}
 	</div>

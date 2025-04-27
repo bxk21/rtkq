@@ -12,7 +12,7 @@ export const NewUser = () => {
 		})
 	};
 
-	return <div>
+	return <div className={styles.container}>
 		{isError && <div>
 			<h1>There was an error: {JSON.stringify(error)}</h1>
 		</div>}
@@ -21,7 +21,7 @@ export const NewUser = () => {
 			<h1>Loading...</h1>
 		</div>}
 
-		{(isUninitialized || isError) && <form action={submitNewUser}>
+		{(isUninitialized || isError) && <form action={submitNewUser} className={styles.form}>
 			<label>
 				Username: <input name="userName" type="string"/>
 			</label>
@@ -33,7 +33,7 @@ export const NewUser = () => {
 			</button>
 		</form>}
 
-		{isSuccess && <div className={styles.container}>
+		{isSuccess && <div>
 			User Created!
 		</div>}
 	</div>
