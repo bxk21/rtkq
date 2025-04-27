@@ -1,6 +1,6 @@
 import { UserSession, UserId, TOKEN_COLUMNS, TOKEN_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
-import { toInt } from "../../util/string";
+import { toInt } from "@/src/lib/util/string";
 import { getSheet } from "./spreadsheet";
 import { generateToken, isExpired, isExpiring } from "./crypto";
 import { setMetaData } from "./metadata";

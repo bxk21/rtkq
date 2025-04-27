@@ -42,7 +42,7 @@ export default function Data() {
 
 		{isDataSuccess && <form action={submitUserInfo}>
 			<label> Data: </label>
-			<textarea rows={20} cols={200} id='data' name='data' defaultValue={data?.data} disabled={isPatching}/>
+			<textarea rows={20} cols={140} id='data' name='data' defaultValue={data?.data} disabled={isPatching}/>
 			{!isPatching && <button type="submit">
 				Save
 			</button>}

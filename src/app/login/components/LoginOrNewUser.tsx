@@ -2,24 +2,22 @@
 
 import { selectUserId } from "@/src/lib/store/slices/tokenSlice";
 import { useSelector } from "react-redux";
-import { NewUser } from "../newUser/NewUser";
-import { Login } from "../login/Login";
+import { NewUser } from "./NewUser";
+import { Login } from "./Login";
 import { useEffect } from "react";
 import { redirect } from "next/navigation";
 
-export default function User() {
+export default function LoginOrNewUser() {
 	const userId = useSelector(selectUserId);
 
 	useEffect(() => {
 		if (userId) {
-			redirect('/');
+			redirect('/data');
 		}
 	}, [userId]);
 
 	return <div>
-		{!userId && <div>
-			<NewUser/>
-			<Login/>
-		</div>}
-	</div>
+		<NewUser/>
+		<Login/>
+	</div>;
 }

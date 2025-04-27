@@ -1,12 +1,12 @@
 import { UserSession, USER_COLUMNS, UserInfo, UserColumns, UserIdentifiers, USER_SHEET } from "@/src/lib/types/userTypes";
 import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { getSheet } from "./spreadsheet";
-import { FlatTwoDimentionalArray, RequireOneExactly } from "../../types/utilTypes";
+import { FlatTwoDimentionalArray, RequireOneExactly } from "@/src/lib/types/utilTypes";
 import { getMetaData, setMetaData } from "./metadata";
 import { checkPasswordAgainstSaltAndHash, generateSaltAndHash } from "./crypto";
 import { HttpStatusCode } from "axios";
 import { assignToken } from "./token";
-import { Access, AccountType, getAccountTypes, hasPermissions } from "../../util/permissions";
+import { Access, AccountType, getAccountTypes, hasPermissions } from "@/src/lib/util/permissions";
 
 let userWorksheet: GoogleSpreadsheetWorksheet | undefined;
 

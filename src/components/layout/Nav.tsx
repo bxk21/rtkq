@@ -13,37 +13,29 @@ import { hasAccountType } from "@/src/lib/util/permissions";
 export const Nav = () => {
 	const userId = useSelector(selectUserId);
 	const { data } = useGetUserInfoQuery(userId ?? skipToken);
-  const pathname = usePathname();
-  console.log('data', data);
+	const pathname = usePathname();
+	// console.log('data', data);
 
-  return (
-    <nav className={styles.nav}>
-      <Link
-        className={`${styles.link} ${pathname === "/" ? styles.active : ""}`}
-        href="/"
-      >
-        Home
-      </Link>
-      <Link
-        className={`${styles.link} ${pathname === "/settings" ? styles.active : ""}`}
-        href="/settings" hidden={!hasAccountType(data?.accountTypes, "user")}
-      >
-        Settings
-      </Link>
-      <Link
-        className={`${styles.link} ${pathname === "/admin" ? styles.active : ""}`}
-        href="/admin" hidden={!hasAccountType(data?.accountTypes, "admin")}
-      >
-        Admin
-      </Link>
-      {/* <Link
-        className={`${styles.link} ${
-          pathname === "/login" ? styles.active : ""
-        }`}
-        href="/login"
-      >
-        Login
-      </Link> */}
-    </nav>
-  );
+	return (
+		<nav className={styles.nav}>
+			<Link
+				className={`${styles.link} ${pathname === "/" ? styles.active : ""}`}
+				href="/"
+			>
+				Home
+			</Link>
+			<Link
+				className={`${styles.link} ${pathname === "/settings" ? styles.active : ""}`}
+				href="/settings" hidden={!hasAccountType(data?.accountTypes, "user")}
+			>
+				Settings
+			</Link>
+			<Link
+				className={`${styles.link} ${pathname === "/admin" ? styles.active : ""}`}
+				href="/admin" hidden={!hasAccountType(data?.accountTypes, "admin")}
+			>
+				Admin
+			</Link>
+		</nav>
+	);
 };

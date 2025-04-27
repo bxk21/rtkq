@@ -2,7 +2,7 @@ import { HttpStatusCode } from "axios";
 import { NextResponse } from "next/server";
 
 var locked = false;
-const queue: ((...args: any[]) => void)[] = [];
+const queue: ((value: boolean) => void)[] = [];
 
 function acquire(): Promise<boolean | void> {
 	if (!locked) { // lock and immediately resolve, starting the callback, but don't queue up.

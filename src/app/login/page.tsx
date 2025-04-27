@@ -1,10 +1,3 @@
-import User from "@/src/components/user/user/User";
+import LoginOrNewUser from "@/src/app/login/components/LoginOrNewUser";
 
-export default function LoginPage() {
-  return (
-    <>
-      <h1>Login page</h1>
-      <User />
-    </>
-  );
-}
+export default LoginOrNewUser;

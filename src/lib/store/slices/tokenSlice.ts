@@ -1,7 +1,7 @@
 import { createSlice, isAnyOf } from "@reduxjs/toolkit";
 import { allFulfilledMatches } from "./sheetsApiSlice";
 import { BaseQueryFn, BaseQueryMeta } from "@reduxjs/toolkit/query";
-import { toInt } from "../../util/string";
+import { toInt } from "@/src/lib/util/string";
 
 export interface TokenState {
 	userId: number | null;

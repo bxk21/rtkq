@@ -1,5 +1,5 @@
 "use client";
-import styles from "./NewUser.module.css";
+import styles from "./Login.module.css";
 import { useNewUserMutation } from "@/src/lib/store/slices/sheetsApiSlice";
 
 export const NewUser = () => {

@@ -1,6 +1,6 @@
 "use client";
 import { selectUserId } from "@/src/lib/store/slices/tokenSlice";
-import styles from "./UserInfo.module.css";
+import styles from "./Header.module.css";
 import { useGetUserInfoQuery } from "@/src/lib/store/slices/sheetsApiSlice";
 import { useSelector } from "react-redux";
 import { skipToken } from "@reduxjs/toolkit/query";

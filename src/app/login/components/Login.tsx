@@ -1,8 +1,6 @@
 "use client";
 import styles from "./Login.module.css";
 import { useLoginMutation } from "@/src/lib/store/slices/sheetsApiSlice";
-import { UserInfo } from "../userInfo/UserInfo";
-// import { signIn } from "@/auth";
 
 export const Login = () => {
 	const [ login, { isError, error, data, reset, isLoading, isUninitialized, isSuccess } ] = useLoginMutation();
